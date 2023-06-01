@@ -1,10 +1,10 @@
 # Building An Interpreter
-This program is an interpreter for a custom language called Lox. Lox is a high-level, dynamically-typed[^1] language like Python or PHP.
+This program is an interpreter for a custom scripting language called Lox. Lox is a high-level, dynamically-typed[^1] language like Python or PHP. Since Lox is a scripting language, it executes directly from source.
 
+## Implementation
+The first step in any interpreter (or compiler) is scanning. A scanner takes in raw source code as a stream of characters and groups them into a series of chunks called tokens. Tokens are recognized characters in programming languages like `(` or `;`, numbers, string literals, and identifiers. Tokens make up the language's grammar and they are what the scanner will feed into the parser.
 
-
-A scanner (or lexer) takes in a stream of characters and chunks them together into a series of tokens.
-Tokens are recognized characters in programming languages like `(` or `;`, numbers, string literals, and identifiers.
+-----------------------------------------
 
 A parser takes the sequence of tokens and builds a tree structure with them. These trees are called parse trees or abstract syntax trees.
 
