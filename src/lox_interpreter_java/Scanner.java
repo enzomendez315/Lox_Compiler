@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.lang.model.util.ElementScanner6;
-
 /*
  * Scans characters and figures out what lexeme the character
  * belongs to.
@@ -19,6 +17,29 @@ public class Scanner
     private int start = 0;      // First character in the lexeme being scanned.
     private int current = 0;    // Character that is currently being processed.
     private int line = 1;       // Source line where current is on.
+
+    private static final Map<String, TokenType> keywords;
+
+    static
+    {
+        keywords = new HashMap<>();
+        keywords.put("and", TokenType.AND);
+        keywords.put("class", TokenType.CLASS);
+        keywords.put("else", TokenType.ELSE);
+        keywords.put("false", TokenType.FALSE);
+        keywords.put("for", TokenType.FOR);
+        keywords.put("fun", TokenType.FUN);
+        keywords.put("if", TokenType.IF);
+        keywords.put("nil", TokenType.NIL);
+        keywords.put("or", TokenType.OR);
+        keywords.put("print", TokenType.PRINT);
+        keywords.put("return", TokenType.RETURN);
+        keywords.put("super", TokenType.SUPER);
+        keywords.put("this", TokenType.THIS);
+        keywords.put("true", TokenType.TRUE);
+        keywords.put("var", TokenType.VAR);
+        keywords.put("while", TokenType.WHILE);
+    }
 
     /*
      * Constructs a Scanner object.
@@ -142,7 +163,12 @@ public class Scanner
                 break;
 
             default:
-                Lox.error(line, "Unexpected character.");
+                if (isDigit(character))
+                    number();
+                else if (isAlpha(character))
+                    identifier();
+                else
+                    Lox.error(line, "Unexpected character.");
                 break;
         }
     }
@@ -195,6 +221,50 @@ public class Scanner
         return source.charAt(current);
     }
 
+    /*
+     * Looks ahead two characters and returns whatever character
+     * it encounters.
+     */
+    private char peekNext()
+    {
+        if (current + 1 >= source.length())
+            return '\0';
+        
+        return source.charAt(current + 1);
+    }
+
+    /*
+     * Checks if the current character is a number from 0 to 9.
+     */
+    private boolean isDigit(char character)
+    {
+        return character >= '0' && character <= '9';
+    }
+
+    /*
+     * Checks if the character is a letter or a "_".
+     */
+    private boolean isAlpha(char character)
+    {
+        return (character >= 'a' && character <= 'z') || 
+                (character >= 'A' && character <= 'Z') || 
+                character == '_';
+    }
+
+    /*
+     * Checks if the character is alphanumeric.
+     */
+    private boolean isAlphaNumeric(char character)
+    {
+        return isAlpha(character) || isDigit(character);
+    }
+
+    /*
+     * Checks if the next character is part of the string and adds
+     * it as a string token.
+     * 
+     * It also checks if the string is unterminated and sends an error.
+     */
     private void string()
     {
         while (peek() != '"' && !isAtEnd())
@@ -216,5 +286,46 @@ public class Scanner
         // Trim the surrounding quotes.
         String value = source. substring(start + 1, current - 1);
         addToken(TokenType.STRING, value);
+    }
+
+    /*
+     * Scans the number and consumes it. Then adds it as a number token.
+     */
+    private void number()
+    {
+        while (isDigit(peek()))
+            advance();
+        
+        // Check if number has decimals.
+        if (peek() == '.' && isDigit(peekNext()))
+            // Consume the "."
+            advance();
+
+        while (isDigit(peek()))
+            advance();
+        
+        addToken(TokenType.NUMBER, Double.parseDouble(source.substring(start, current)));
+    }
+
+    /*
+     * Checks if the character is alphanumeric and advances until
+     * the character is neither a digit nor a letter. 
+     * 
+     * If the substring is found on the keywords hashmap, it is added
+     * as that token's type. Otherwise, it is added as a user-defined
+     * identifier token.
+     */
+    private void identifier()
+    {
+        while (isAlphaNumeric(peek()))
+            advance();
+
+        String text = source.substring(start, current);
+        TokenType type = keywords.get(text);
+    
+        if (type == null)
+            type = TokenType.IDENTIFIER;
+    
+        addToken(type);
     }
 }
