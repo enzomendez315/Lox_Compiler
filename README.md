@@ -15,6 +15,32 @@ A compiler translates a source language to some other language (usually lower-le
 higher level constitutes as compiling too. But the compiler only translates source code to some other form. It does not execute it. The user
 has to take the resulting output and run it themselves. On the other hand, an interpreter takes in source code and executes it immediately.
 
+Production rules generate strings in the grammar and contain two elements - terminals and nonterminals.
+
+A terminal is an individual lexeme. They are called terminals because they don't produce other rules in the grammar. A nonterminal however, references another rule in the grammar. It esentially plays that rule and inserts whatever it produces there.
+
+This is an example of a set of production rules, where terminals are quoted strings and nonterminals are lowercase words:
+```
+breakfast -> protein "with" breakfast "on the side" ;
+breakfast -> protein ;
+breakfast -> bread ;
+
+protein -> crispiness "crispy" "bacon" ;
+protein -> "sausage" ;
+protein -> cooked "eggs" ;
+
+crispiness -> "really" ;
+crispiness -> "really" crispiness ;
+
+cooked -> "scrambled" ;
+cooked -> "poached" ;
+cooked -> "fried" ;
+
+bread -> "toast" ;
+bread -> "biscuits" ;
+bread -> "English muffin" ;
+```
+
 
 
 [^1]: Dynamically-typed means that the interpreter assigns variables a type at runtime based on the variable's value. This is different from
