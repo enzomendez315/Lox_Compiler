@@ -4,9 +4,10 @@ This program is an interpreter for a custom scripting language called Lox. Lox i
 ## Implementation
 The first step in any interpreter (or compiler) is scanning. A scanner takes in raw source code as a stream of characters and groups them into a series of chunks called tokens. Tokens are recognized characters in programming languages like `(` or `;`, numbers, string literals, and identifiers. Tokens make up the language's grammar and they are what the scanner will feed into the parser.
 
------------------------------------------
-
 A parser takes the sequence of tokens and builds a tree structure with them. These trees are called parse trees or abstract syntax trees.
+Given a series of tokens (aka a string), the tokens are mapped to the terminals in the grammar to figure out which rules could have generated that string. This is done in order to understand what part of the language each token belongs to.
+
+-----------------------------------------
 
 We can think of the compiler as a pipeline where each stage's job is to organize the data representing the user's code in a way that makes
 the next stage simpler to implement.
