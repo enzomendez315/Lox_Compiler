@@ -7,6 +7,10 @@ package lox_interpreter_java;
  */
 public abstract class Expr 
 {
+    /*
+     * This interface is used to add functionality to the subclasses without 
+     * having to implement every method on every subclass.
+     */
     public interface Visitor<R>
     {
         R visitBinaryExpr(Binary expr);
