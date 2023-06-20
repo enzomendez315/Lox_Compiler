@@ -7,6 +7,14 @@ package lox_interpreter_java;
  */
 public abstract class Expr 
 {
+    public interface Visitor<R>
+    {
+        R visitBinaryExpr(Binary expr);
+        R visitGroupingExpr(Grouping expr);
+        R visitLiteralExpr(Literal expr);
+        R visitUnaryExpr(Unary expr);
+    }
+
     public static class Binary extends Expr
     {
         public final Expr left;
@@ -19,6 +27,12 @@ public abstract class Expr
             this.operator = operator;
             this.right = right;
         }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor)
+        {
+            return visitor.visitBinaryExpr(this);
+        }
     }
 
     public static class Grouping extends Expr
@@ -29,6 +43,12 @@ public abstract class Expr
         {
             this.expression = expression;
         }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) 
+        {
+            return visitor.visitGroupingExpr(this);
+        }
     }
 
     public static class Literal extends Expr
@@ -38,6 +58,12 @@ public abstract class Expr
         Literal(Object value)
         {
             this.value = value;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) 
+        {
+            return visitor.visitLiteralExpr(this);
         }
     }
 
@@ -51,5 +77,13 @@ public abstract class Expr
             this.operator = operator;
             this.right = right;
         }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) 
+        {
+            return visitor.visitUnaryExpr(this);
+        }
     }
+
+    public abstract <R> R accept(Visitor<R> visitor);
 }
