@@ -9,6 +9,8 @@ import java.util.List;
  */
 public class Parser 
 {
+    private static class ParseError extends RuntimeException{}
+
     private final List<Token> tokens;
     private int current = 0;    // Points to the next token to be parsed.
 
@@ -21,6 +23,21 @@ public class Parser
     }
 
     /*
+     * Parses a single expression and returns it.
+     */
+    public Expr parse()
+    {
+        try
+        {
+            return expression();
+        } 
+        catch (ParseError error)
+        {
+            return null;
+        }
+    }
+
+    /*
      * Returns an equality expression.
      */
     private Expr expression()
@@ -29,8 +46,8 @@ public class Parser
     }
 
     /*
-     * Returns a simple expression or a comparison between two expressions.
-     * These expressions are compared using "!=" or "==".
+     * Checks if the series of tokens is != or == and returns 
+     * a binary syntax tree.
      */
     private Expr equality()
     {
@@ -125,13 +142,42 @@ public class Parser
     }
 
     /*
-     * 
+     * Returns an error containing the token and the message for the error.
      */
     private ParseError error(Token token, String message)
     {
         Lox.error(token, message);
 
         return new ParseError();
+    }
+
+    /*
+     * Discards tokens until it gets to the next statement.
+     */
+    private void synchronize()
+    {
+        advance();
+
+        while(!isAtEnd())
+        {
+            if (previous().type == TokenType.SEMICOLON)
+                return;
+
+            switch (peek().type)
+            {
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                return;
+            }
+
+            advance();
+        }
     }
 
     /*
@@ -229,5 +275,7 @@ public class Parser
             consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
+
+        throw error(peek(), "Expect expression.");
     }
 }

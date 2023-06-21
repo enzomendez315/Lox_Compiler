@@ -37,7 +37,9 @@ A parser has two jobs:
 1. To produce a corresponding syntax tree given a valid sequence of tokens.
 2. To detect any errors and notify the user if the sequence of tokens is invalid.
 
-The most important aspect of a parser is usability because at the end of the day, the user is the one who will be dealing with it the most. If the parser takes a long time to consume all the source files or if it doesn't notify the user of their mistakes, then it is not very usable. This is why the parser reports as many separate errors as it can while ignoring cascaded errors (meaning that we ignore the errors that are a side effect of previous errors).
+The most important aspect of a parser is usability because at the end of the day, the user is the one who will be dealing with it the most. If the parser takes a long time to consume all the source files or if it doesn't notify the user of their mistakes, then it is not very usable. This is why the parser reports as many separate errors as it can while ignoring cascaded errors (meaning that it ignores the errors that are a side effect of previous errors).
+
+When an error occurs, the parser discards tokens until it gets to the next statement. And then it will parse the rest of the file starting at that location.
 
 -----------------------------------------
 
