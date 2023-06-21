@@ -135,7 +135,8 @@ public class Parser
     }
 
     /*
-     * 
+     * Checks if the series of tokens is <, <=, >, or >= and returns a 
+     * comparison syntax tree.
      */
     private Expr comparison()
     {
@@ -152,7 +153,8 @@ public class Parser
     }
 
     /*
-     * 
+     * Checks if the token is + or - and returns a binary
+     * syntax tree.
      */
     private Expr term()
     {
@@ -169,7 +171,8 @@ public class Parser
     }
 
     /*
-     * 
+     * Checks if the token is * or / and returns a binary
+     * syntax tree.
      */
     private Expr factor()
     {
@@ -186,7 +189,8 @@ public class Parser
     }
 
     /*
-     * 
+     * Checks if the token is ! or - and returns a unary 
+     * syntax tree.
      */
     private Expr unary()
     {
@@ -202,7 +206,8 @@ public class Parser
     }
 
     /*
-     * 
+     * Checks if the series of tokens is "false", "true", "null", 
+     * a number, or ( and returns the appropriate syntax tree.
      */
     private Expr primary()
     {
