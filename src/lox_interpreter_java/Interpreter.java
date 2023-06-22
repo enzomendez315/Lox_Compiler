@@ -1,27 +1,27 @@
 package lox_interpreter_java;
 
-import javax.management.RuntimeErrorException;
+import java.util.List;
+
+import lox_interpreter_java.Stmt.Print;
 
 /*
  * This class is used to evaluate expressions and produce values 
  * using the syntax trees created by the parser.
  */
-public class Interpreter implements Expr.Visitor<Object>
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
     /*
-     * Takes in a syntax tree for an expression and evaluates it.
-     * 
-     * If the expression is evaluated correctly, it is then
-     * converted to a string.
-     * 
+     * Takes in a series of statements and evaluates them.
      * If a runtime error is thrown, it is caught and dealt with.
      */
-    public void interpret(Expr expression)
+    public void interpret(List<Stmt> statements)
     {
         try
         {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for (Stmt statement : statements)
+            {
+                execute(statement);
+            }
         } 
         catch (RuntimeError error)
         {
@@ -110,6 +110,31 @@ public class Interpreter implements Expr.Visitor<Object>
     private Object evaluate(Expr expr)
     {
         return expr.accept(this);
+    }
+
+    /*
+     * Executes a statement.
+     */
+    private void execute(Stmt stmt)
+    {
+        stmt.accept(this);
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt)
+    {
+        evaluate(stmt.expression);
+
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Print stmt) 
+    {
+       Object value = evaluate(stmt.expression);
+       System.out.println(stringify(value));
+
+       return null;
     }
 
     /*

@@ -1,5 +1,6 @@
 package lox_interpreter_java;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -23,18 +24,19 @@ public class Parser
     }
 
     /*
-     * Parses a single expression and returns it.
+     * Parses each statement in the file and returns them 
+     * as a list.
      */
-    public Expr parse()
+    public List<Stmt> parse()
     {
-        try
+        List<Stmt> statements = new ArrayList<>();
+
+        while (!isAtEnd())
         {
-            return expression();
-        } 
-        catch (ParseError error)
-        {
-            return null;
+            statements.add(statement());
         }
+
+        return statements;
     }
 
     /*
@@ -43,6 +45,41 @@ public class Parser
     private Expr expression()
     {
         return equality();
+    }
+
+    /*
+     * Parses a single statement. Prints it if it is a 
+     * PRINT statement. Returns it otherwise.
+     */
+    private Stmt statement()
+    {
+        if (match(TokenType.PRINT))
+            return printStatement();
+        
+        return expressionStatement();
+    }
+
+    /*
+     * Checks that the statement ends with a semicolon and 
+     * prints it.
+     */
+    private Stmt printStatement()
+    {
+        Expr value = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after value.");
+
+        return new Stmt.Print(value);
+    }
+
+    /*
+     * Parses an expression followed by a semicolon.
+     */
+    private Stmt expressionStatement()
+    {
+        Expr expr = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+
+        return new Stmt.Expression(expr);
     }
 
     /*
