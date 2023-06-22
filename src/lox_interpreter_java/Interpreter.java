@@ -1,5 +1,7 @@
 package lox_interpreter_java;
 
+import javax.management.RuntimeErrorException;
+
 /*
  * This class is used to evaluate expressions and produce values 
  * using the syntax trees created by the parser.
@@ -21,14 +23,19 @@ public class Interpreter implements Expr.Visitor<Object>
         switch (expr.operator.type)
         {
             case GREATER:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left > (double)right;
             case GREATER_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left >= (double)right;
             case LESS:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left < (double)right;
             case LESS_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left <= (double)right;
             case MINUS:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left - (double)right;
             case PLUS:
                 if (left instanceof Double && right instanceof Double)
@@ -37,10 +44,12 @@ public class Interpreter implements Expr.Visitor<Object>
                 if (left instanceof String && right instanceof String)
                     return (String)left + (String)right;
 
-                break;
+                throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings.");
             case SLASH:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left / (double)right;
             case STAR:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left * (double)right;
             case BANG_EQUAL:
                 return !isEqual(left, right);
@@ -73,10 +82,35 @@ public class Interpreter implements Expr.Visitor<Object>
             case BANG:
                 return !isTruthy(right);
             case MINUS:
+                checkNumberOperand(expr.operator, right);
                 return -(double)right;
         }
 
         return null;
+    }
+
+    /*
+     * Checks that the operand is a number on which the operator
+     * can be used.
+     */
+    private void checkNumberOperand(Token operator, Object operand)
+    {
+        if (operand instanceof Double)
+            return;
+        
+        throw new RuntimeError(operator, "Operand must be a number.");
+    }
+
+    /*
+     * Checks that the operands are numbers on which the operator
+     * can be used.
+     */
+    private void checkNumberOperands(Token operator, Object left, Object right)
+    {
+        if (left instanceof Double && right instanceof Double)
+            return;
+        
+        throw new RuntimeError(operator, "Operands must be numbers.");
     }
 
     /*
