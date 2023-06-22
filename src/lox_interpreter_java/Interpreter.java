@@ -2,14 +2,14 @@ package lox_interpreter_java;
 
 import java.util.List;
 
-import lox_interpreter_java.Stmt.Print;
-
 /*
  * This class is used to evaluate expressions and produce values 
  * using the syntax trees created by the parser.
  */
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
+    private Environment environment = new Environment();
+
     /*
      * Takes in a series of statements and evaluates them.
      * If a runtime error is thrown, it is caught and dealt with.
@@ -104,6 +104,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
         return null;
     }
 
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr)
+    {
+        return environment.get(expr.name);
+    }
+
     /*
      * Evaluates an expression.
      */
@@ -129,12 +135,23 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
     }
 
     @Override
-    public Void visitPrintStmt(Print stmt) 
+    public Void visitPrintStmt(Stmt.Print stmt) 
     {
        Object value = evaluate(stmt.expression);
        System.out.println(stringify(value));
 
        return null;
+    }
+
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt)
+    {
+        Object value = null;
+        if (stmt.initializer != null)
+            value = evaluate(stmt.initializer);
+
+        environment.define(stmt.name.lexeme, value);
+        return null;
     }
 
     /*
