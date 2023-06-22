@@ -8,10 +8,25 @@ import javax.management.RuntimeErrorException;
  */
 public class Interpreter implements Expr.Visitor<Object>
 {
-
-    private Object evaluate(Expr expr)
+    /*
+     * Takes in a syntax tree for an expression and evaluates it.
+     * 
+     * If the expression is evaluated correctly, it is then
+     * converted to a string.
+     * 
+     * If a runtime error is thrown, it is caught and dealt with.
+     */
+    public void interpret(Expr expression)
     {
-        return expr.accept(this);
+        try
+        {
+            Object value = evaluate(expression);
+            System.out.println(stringify(value));
+        } 
+        catch (RuntimeError error)
+        {
+            Lox.runtimeError(error);
+        }
     }
 
     @Override
@@ -90,6 +105,14 @@ public class Interpreter implements Expr.Visitor<Object>
     }
 
     /*
+     * Evaluates an expression.
+     */
+    private Object evaluate(Expr expr)
+    {
+        return expr.accept(this);
+    }
+
+    /*
      * Checks that the operand is a number on which the operator
      * can be used.
      */
@@ -140,5 +163,25 @@ public class Interpreter implements Expr.Visitor<Object>
             return false;
 
         return a.equals(b);
+    }
+
+    /*
+     * Returns the string representation of the object.
+     */
+    private String stringify(Object object)
+    {
+        if (object == null)
+            return "nil";
+
+        if (object instanceof Double)
+        {
+            String text = object.toString();
+            if (text.endsWith(".0"))
+                text = text.substring(0, text.length() - 2);
+
+            return text;
+        }
+
+        return object.toString();
     }
 }

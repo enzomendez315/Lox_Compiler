@@ -13,7 +13,9 @@ import java.util.List;
  */
 public class Lox 
 {
-    static boolean hadError = false;
+    private static final Interpreter interpreter = new Interpreter();
+    public static boolean hadError = false;
+    public static boolean hadRuntimeError = false;
 
     public static void main(String[] args) throws IOException 
     {
@@ -42,6 +44,9 @@ public class Lox
         // Indicate an error in the exit code.
         if (hadError)
             System.exit(65);
+
+        if (hadRuntimeError)
+            System.exit(70);
     }
 
     /*
@@ -80,13 +85,13 @@ public class Lox
         if (hadError)
             return;
 
-        System.out.println(new AstPrinter().print(expression));
+        interpreter.interpret(expression);
     }
 
     /*
      * Reports errors to the user.
      */
-    static void error(int line, String message)
+    public static void error(int line, String message)
     {
         report(line, "", message);
     }
@@ -105,11 +110,20 @@ public class Lox
     /*
      * Reports an error at a given token.
      */
-    static void error(Token token, String message)
+    public static void error(Token token, String message)
     {
         if (token.type == TokenType.EOF)
             report(token.line, " at end", message);
         else
             report(token.line, " at '" + token.lexeme + "'", message);
+    }
+
+    /*
+     * Prints the error's location and sets runtime error flag to true.
+     */
+    public static void runtimeError(RuntimeError error)
+    {
+        System.err.println(error.getMessage() + "\n[line " + error.token.line + "]");
+        hadRuntimeError = true;
     }
 }
