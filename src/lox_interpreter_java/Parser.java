@@ -33,7 +33,7 @@ public class Parser
 
         while (!isAtEnd())
         {
-            statements.add(statement());
+            statements.add(declaration());
         }
 
         return statements;
@@ -45,6 +45,27 @@ public class Parser
     private Expr expression()
     {
         return equality();
+    }
+
+    /*
+     * Looks for a variable declaration or parses the next
+     * statement if there isn't one.
+     */
+    private Stmt declaration()
+    {
+        try
+        {
+            if (match(TokenType.VAR))
+                return varDeclaration();
+
+            return statement();
+        }
+        catch (ParseError error)
+        {
+            synchronize();
+
+            return null;
+        }
     }
 
     /*
@@ -69,6 +90,23 @@ public class Parser
         consume(TokenType.SEMICOLON, "Expect ';' after value.");
 
         return new Stmt.Print(value);
+    }
+
+    /*
+     * Consumes an identifier token for the variable name, 
+     * then it parses the initializer expression or leaves it 
+     * as null.
+     */
+    private Stmt varDeclaration()
+    {
+        Token name = consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+        Expr initializer = null;
+        if (match(TokenType.EQUAL))
+            initializer = expression();
+
+        consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initializer);
     }
 
     /*
@@ -305,6 +343,9 @@ public class Parser
 
         if (match(TokenType.NUMBER, TokenType.STRING))
             return new Expr.Literal(previous().literal);
+
+        if (match(TokenType.IDENTIFIER))
+            return new Expr.Variable(previous());
 
         if (match(TokenType.LEFT_PAREN))
         {
