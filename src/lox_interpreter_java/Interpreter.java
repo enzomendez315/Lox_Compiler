@@ -29,6 +29,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
         }
     }
 
+    /*
+     * Evaluates a binary expression and returns the result.
+     */
     @Override
     public Object visitBinaryExpr(Expr.Binary expr) 
     {
@@ -75,18 +78,27 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
         return null;
     }
 
+    /*
+     * Evaluates a grouping expression and returns the result.
+     */
     @Override
     public Object visitGroupingExpr(Expr.Grouping expr) 
     {
         return evaluate(expr.expression);
     }
 
+    /*
+     * Evaluates a literal expression and returns the result.
+     */
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) 
     {
         return expr.value;
     }
 
+    /*
+     * Evaluates a unary expression and returns the result.
+     */
     @Override
     public Object visitUnaryExpr(Expr.Unary expr) 
     {
@@ -104,6 +116,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
         return null;
     }
 
+    /*
+     * Evaluates a variable expression and returns the result.
+     */
     @Override
     public Object visitVariableExpr(Expr.Variable expr)
     {
@@ -126,6 +141,42 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
         stmt.accept(this);
     }
 
+    /*
+     * Executes each statement in a block and 
+     * sets a new environment for the scope.
+     */
+    public void executeBlock(List<Stmt> statements, Environment environment)
+    {
+        Environment previous = this.environment;
+        try
+        {
+            this.environment = environment;
+
+            for (Stmt statement : statements)
+            {
+                execute(statement);
+            }
+        }
+        finally
+        {
+            this.environment = previous;
+        }
+    }
+
+    /*
+     * Evaluates an entire block or scope.
+     */
+    @Override
+    public Void visitBlockStmt(Stmt.Block stmt)
+    {
+        executeBlock(stmt.statements, new Environment(environment));
+
+        return null;
+    }
+
+    /*
+     * Evaluates an expression statement and returns the result.
+     */
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt)
     {
@@ -134,6 +185,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
         return null;
     }
 
+    /*
+     * Prints an expression statement.
+     */
     @Override
     public Void visitPrintStmt(Stmt.Print stmt) 
     {
@@ -143,6 +197,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
        return null;
     }
 
+    /*
+     * Evaluates a variable statement.
+     */
     @Override
     public Void visitVarStmt(Stmt.Var stmt)
     {
@@ -151,7 +208,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
             value = evaluate(stmt.initializer);
 
         environment.define(stmt.name.lexeme, value);
+
         return null;
+    }
+
+    /*
+     * Evaluates an assignment expression.
+     */
+    @Override
+    public Object visitAssignExpr(Expr.Assign expr)
+    {
+        Object value = evaluate(expr.value);
+        environment.assign(expr.name, value);
+
+        return value;
     }
 
     /*
