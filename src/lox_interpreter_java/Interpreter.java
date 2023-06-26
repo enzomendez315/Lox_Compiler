@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
-    private final Environment globals = new Environment();
+    protected final Environment globals = new Environment();
     private Environment environment = globals;
 
     /*
@@ -260,6 +260,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
     public Void visitExpressionStmt(Stmt.Expression stmt)
     {
         evaluate(stmt.expression);
+
+        return null;
+    }
+
+    /*
+     * Evaluates a function declaration and binds the resulting 
+     * object to a new variable.
+     */
+    @Override
+    public Void visitFunctionStmt(Stmt.Function stmt)
+    {
+        LoxFunction function = new LoxFunction(stmt);
+        environment.define(stmt.name.lexeme, function);
 
         return null;
     }
