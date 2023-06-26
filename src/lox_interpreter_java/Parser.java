@@ -1,7 +1,10 @@
 package lox_interpreter_java;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.lang.model.util.ElementScanner6;
 
 /*
  * This class is used for parsing tokens once they have been scanned.
@@ -74,6 +77,9 @@ public class Parser
      */
     private Stmt statement()
     {
+        if (match(TokenType.FOR))
+            return forStatement();
+        
         if (match(TokenType.IF))
             return ifStatement();
         
@@ -87,6 +93,51 @@ public class Parser
             return new Stmt.Block(block());
         
         return expressionStatement();
+    }
+
+    /*
+     * Parses all the pieces of a 'for' loop and executes 
+     * the body of the loop.
+     */
+    private Stmt forStatement()
+    {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+        // For initializer
+        Stmt initializer;
+        if (match(TokenType.SEMICOLON))
+            initializer = null;
+        else if (match(TokenType.VAR))
+            initializer = varDeclaration();
+        else 
+            initializer = expressionStatement();
+
+        // For condition
+        Expr condition = null;
+        if (!check(TokenType.SEMICOLON))
+            condition = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+
+        // For increment
+        Expr increment = null;
+        if (!check(TokenType.RIGHT_PAREN))
+            increment = expression();
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+        
+        // For body
+        Stmt body = statement();
+
+        // Advances loop
+        if (increment != null)
+            body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+        if (condition == null)
+            condition = new Expr.Literal(true); // For infinite loops
+        body = new Stmt.While(condition, body);
+
+        if (initializer != null)
+            body = new Stmt.Block(Arrays.asList(initializer, body));
+
+        return body;
     }
 
     /*
