@@ -69,18 +69,42 @@ public class Parser
     }
 
     /*
-     * Parses a single statement. Prints it if it is a 
-     * PRINT statement. Returns it otherwise.
+     * Parses a single statement and executes the correct 
+     * method given the type.
      */
     private Stmt statement()
     {
+        if (match(TokenType.IF))
+            return ifStatement();
+        
         if (match(TokenType.PRINT))
             return printStatement();
+
+        if (match(TokenType.WHILE))
+            return whileStatement();
 
         if (match(TokenType.LEFT_BRACE))
             return new Stmt.Block(block());
         
         return expressionStatement();
+    }
+
+    /*
+     * Checks that the 'if' condition is in parenthesis and 
+     * parses the statement.
+     */
+    private Stmt ifStatement()
+    {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        Expr condition = expression();
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(TokenType.ELSE))
+            elseBranch = statement();
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
     /*
@@ -110,6 +134,20 @@ public class Parser
 
         consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
         return new Stmt.Var(name, initializer);
+    }
+
+    /*
+     * Checks that the 'while' condition is in parenthesis 
+     * and parses the statement.
+     */
+    private Stmt whileStatement()
+    {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        Expr condition = expression();
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
     }
 
     /*
@@ -146,7 +184,7 @@ public class Parser
      */
     private Expr assignment()
     {
-        Expr expr = equality();
+        Expr expr = or();
 
         if (match(TokenType.EQUAL))
         {
@@ -161,6 +199,40 @@ public class Parser
             }
 
             error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    /*
+     * Parses 'or' expressions.
+     */
+    private Expr or()
+    {
+        Expr expr = and();
+
+        while (match(TokenType.OR))
+        {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    /*
+     * Parses 'and' expressions.
+     */
+    private Expr and()
+    {
+        Expr expr = equality();
+
+        while (match(TokenType.AND))
+        {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
         }
 
         return expr;
