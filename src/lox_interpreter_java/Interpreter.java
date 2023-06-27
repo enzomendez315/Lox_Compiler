@@ -1,7 +1,9 @@
 package lox_interpreter_java;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /*
  * This class is used to evaluate expressions and produce values 
@@ -11,6 +13,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
 {
     protected final Environment globals = new Environment();
     private Environment environment = globals;
+    private final Map<Expr, Integer> locals = new HashMap<>();
 
     /*
      * Constructs an Interpreter object and defines its 
@@ -201,7 +204,21 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
     @Override
     public Object visitVariableExpr(Expr.Variable expr)
     {
-        return environment.get(expr.name);
+        return lookUpVariable(expr.name, expr);
+    }
+
+    /*
+     * Looks up the distance of the resolved variable and returns 
+     * the variable itself.
+     */
+    private Object lookUpVariable(Token name, Expr expr)
+    {
+        Integer distance = locals.get(expr);
+
+        if (distance != null)
+            return environment.getAt(distance, name.lexeme);
+        else
+            return globals.get(name);
     }
 
     /*
@@ -218,6 +235,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
     private void execute(Stmt stmt)
     {
         stmt.accept(this);
+    }
+
+    /*
+     * Stores the resolution information (the expression 
+     * and the number of environments between the current 
+     * one and the enclosing where the variable's value 
+     * is found).
+     */
+    public void resolve(Expr expr, int depth)
+    {
+        locals.put(expr, depth);
     }
 
     /*
@@ -354,7 +382,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
     public Object visitAssignExpr(Expr.Assign expr)
     {
         Object value = evaluate(expr.value);
-        environment.assign(expr.name, value);
+        Integer distance = locals.get(expr);
+
+        if (distance != null)
+            environment.assignAt(distance, expr.name, value);
+        else
+            globals.assign(expr.name, value);
 
         return value;
     }

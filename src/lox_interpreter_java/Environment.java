@@ -73,4 +73,38 @@ public class Environment
     {
         values.put(name, value);
     }
+
+    /*
+     * Returns the value of the variable in that 
+     * environment's map.
+     */
+    public Object getAt(int distance, String name)
+    {
+        return ancestor(distance).values.get(name);
+    }
+
+    /*
+     * Walks a fixed number of hops up the parent chain 
+     * and puts the new value in the map.
+     */
+    public void assignAt(int distance, Token name, Object value)
+    {
+        ancestor(distance).values.put(name.lexeme, value);
+    }
+
+    /*
+     * Walks a fixed number of hops up the parent chain 
+     * and returns the environment there.
+     */
+    public Environment ancestor(int distance)
+    {
+        Environment environment = this;
+
+        for (int i = 0; i < distance; i++)
+        {
+            environment = environment.enclosing;
+        }
+
+        return environment;
+    }
 }
