@@ -58,6 +58,9 @@ public class Parser
     {
         try
         {
+            if (match(TokenType.CLASS))
+                return classDeclaration();
+            
             if (match(TokenType.FUN))
                 return function("function");
             
@@ -72,6 +75,27 @@ public class Parser
 
             return null;
         }
+    }
+
+    /*
+     * Consumes the name of a class and parses its method 
+     * declarations.
+     */
+    private Stmt classDeclaration()
+    {
+        Token name = consume(TokenType.IDENTIFIER, "Expect class name.");
+        consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+
+        List<Stmt.Function> methods = new ArrayList<>();
+
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd())
+        {
+            methods.add(function("method"));
+        }
+
+        consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+
+        return new Stmt.Class(name, methods);
     }
 
     /*
@@ -560,6 +584,11 @@ public class Parser
         {
             if (match(TokenType.LEFT_PAREN))
                 expr = finishCall(expr);
+            else if (match(TokenType.DOT))
+            {
+                Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'");
+                expr = new Expr.Get(expr, name);
+            }
             else 
                 break;
         }

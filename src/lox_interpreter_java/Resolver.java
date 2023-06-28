@@ -45,6 +45,18 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>
     }
 
     /*
+     * Declares and defines a class using its name.
+     */
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt)
+    {
+        declare(stmt.name);
+        define(stmt.name);
+
+        return null;
+    }
+
+    /*
      * Resolves an expression statement.
      */
     @Override

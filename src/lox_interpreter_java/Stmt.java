@@ -16,6 +16,7 @@ public abstract class Stmt
     public interface Visitor<R>
     {
         R visitBlockStmt(Block stmt);
+        R visitClassStmt(Class stmt);
         R visitExpressionStmt(Expression stmt);
         R visitFunctionStmt(Function stmt);
         R visitIfStmt(If stmt);
@@ -25,7 +26,7 @@ public abstract class Stmt
         R visitWhileStmt(While stmt);
     }
 
-     public static class Block extends Stmt
+    public static class Block extends Stmt
     {
         public final List<Stmt> statements;
 
@@ -38,6 +39,24 @@ public abstract class Stmt
         public <R> R accept(Visitor<R> visitor) 
         {
             return visitor.visitBlockStmt(this);
+        }
+    }
+
+    public static class Class extends Stmt
+    {
+        public final Token name;
+        public final List<Stmt.Function> methods;
+
+        public Class(Token name, List<Stmt.Function> methods)
+        {
+            this.name = name;
+            this.methods = methods;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor) 
+        {
+            return visitor.visitClassStmt(this);
         }
     }
 
@@ -113,7 +132,7 @@ public abstract class Stmt
         }
     }
 
-     public static class Return extends Stmt
+    public static class Return extends Stmt
     {
         public final Token keyword;
         public final Expr value;
