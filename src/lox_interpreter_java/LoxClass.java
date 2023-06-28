@@ -9,13 +9,26 @@ import java.util.Map;
 public class LoxClass implements LoxCallable 
 {
     protected final String name;
+    private final Map<String, LoxFunction> methods;
 
     /*
      * Constructs a LoxClass object.
      */
-    public LoxClass(String name)
+    public LoxClass(String name, Map<String, LoxFunction> methods)
     {
         this.name = name;
+        this.methods = methods;
+    }
+
+    /*
+     * Returns the method of a instance's class.
+     */
+    public LoxFunction findMethod(String name)
+    {
+        if (methods.containsKey(name))
+            return methods.get(name);
+
+        return null;
     }
 
     /*

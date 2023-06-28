@@ -138,6 +138,22 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
     }
 
     /*
+     * Evaluates the expression whose property is being accessed.
+     * If the object is not an instance of a class, it throws 
+     * an error.
+     */
+    @Override
+    public Object visitGetExpr(Expr.Get expr)
+    {
+        Object object = evaluate(expr.object);
+
+        if (object instanceof LoxInstance)
+            return ((LoxInstance)object).get(expr.name);
+
+        throw new RuntimeError(expr.name, "Only instances have properties.");
+    }
+
+    /*
      * Evaluates a grouping expression and returns the result.
      */
     @Override
@@ -176,6 +192,26 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
         }
 
         return evaluate(expr.right);
+    }
+
+    /*
+     * Evaluates the object whose property is being set 
+     * and checks if it is an instance of a class. If it 
+     * isn't, it throws an error. Otherwise, it evaluates 
+     * the value being set and stores it on the instance.
+     */
+    @Override
+    public Object visitSetExpr(Expr.Set expr)
+    {
+        Object object = evaluate(expr.object);
+
+        if (!(object instanceof LoxInstance))
+            throw new RuntimeError(expr.name, "Only instances have fields.");
+
+        Object value = evaluate(expr.value);
+        ((LoxInstance)object).set(expr.name, value);
+
+        return value;
     }
 
     /*
@@ -289,6 +325,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>
     public Void visitClassStmt(Stmt.Class stmt)
     {
         environment.define(stmt.name.lexeme, null);
+
+        Map<String, LoxFunction> methods = new HashMap<>();
+        
+        for (Stmt.Function method : stmt.methods)
+        {
+            LoxFunction function = new LoxFunction(method, environment);
+            methods.put(method.name.lexeme, function);
+        }
+
         LoxClass klass = new LoxClass(stmt.name.lexeme);
         environment.assign(stmt.name, klass);
 
