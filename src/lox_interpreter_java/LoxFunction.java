@@ -9,14 +9,30 @@ public class LoxFunction implements LoxCallable
 {
     private final Stmt.Function declaration;
     private final Environment closure;
+    private final boolean isInitializer;
 
     /*
      * Constructs a LoxFunction object.
      */
-    public LoxFunction(Stmt.Function declaration, Environment closure)
+    public LoxFunction(Stmt.Function declaration, Environment closure, boolean isInitializer)
     {
         this.declaration = declaration;
         this.closure = closure;
+        this.isInitializer = isInitializer;
+    }
+
+    /*
+     * Creates a new environment inside the method's original 
+     * closure, so that it becomes the parent of the method 
+     * body's environment. It then declares 'this' as a variable 
+     * and binds it to the given instance.
+     */
+    public LoxFunction bind(LoxInstance instance)
+    {
+        Environment environment = new Environment(closure);
+        environment.define("this", instance);
+
+        return new LoxFunction(declaration, environment, isInitializer);
     }
 
     /*
@@ -50,8 +66,14 @@ public class LoxFunction implements LoxCallable
         }
         catch (Return returnValue)
         {
+            if (isInitializer)
+                return closure.getAt(0, "this");
+            
             return returnValue.value;
         }
+
+        if (isInitializer)
+            return closure.getAt(0, "this");
 
         return null;
     }
