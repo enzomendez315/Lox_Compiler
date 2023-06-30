@@ -1,5 +1,7 @@
-# Building An Interpreter
+# Building A Tree-Walk Interpreter
 This program is an interpreter for a custom scripting language called Lox. Lox is a high-level, dynamically-typed[^1] language like Python or PHP. Since Lox is a scripting language, it executes directly from source.
+
+For this project, I am using a book called Crafting Interpreters where an interpreter is built from the ground up.[^2] It is ideal to get a better understanding about how high-level languages are implemented, and what goes through the creation of an interpreter using popular programming languages like Java or C++.
 
 In Lox, values are created by literals, computed by expressions, and stored in variables. But the user only sees Lox objects (that are implemented in the undrelying language the interpreter is written in, aka java).
 
@@ -60,5 +62,6 @@ The tree-walk interpreter evaluates nested expressions using recursive method ca
 
 
 
-[^1]: Dynamically-typed means that the interpreter assigns variables a type at runtime based on the variable's value. This is different from
-a statically-typed language like Java or C++, where variable types are known at compile time.
+[^1]: Dynamically-typed means that the interpreter assigns variables a type at runtime based on the variable's value. This is different from a statically-typed language like Java or C++, where variable types are known at compile time.
+
+[^2]: craftinginterpreters.com
