@@ -16,7 +16,7 @@ public class Scanner
     private final List<Token> tokens = new ArrayList<>();
     private int start = 0;      // First character in the lexeme being scanned.
     private int current = 0;    // Character that is currently being processed.
-    private int line = 1;       // Source line where current is on.
+    private int line = 1;       // Source line where 'current' is on.
 
     private static final Map<String, TokenType> keywords;
 
@@ -280,7 +280,7 @@ public class Scanner
             return;
         }
 
-        // The closing ".
+        // For the closing ".
         advance();
 
         // Trim the surrounding quotes.
@@ -290,6 +290,9 @@ public class Scanner
 
     /*
      * Scans the number and consumes it. Then adds it as a number token.
+     * It consumes as many digits as it finds for the integer part of 
+     * the literal, then it looks for a fractional part (separated by 
+     * a decimal point) and does the same for the decimals.
      */
     private void number()
     {
