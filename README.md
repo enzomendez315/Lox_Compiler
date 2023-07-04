@@ -28,7 +28,7 @@ A parser uses production rules to represent and organize grammars that contain a
 
 This is an example of a set of production rules, where terminals are quoted strings and nonterminals are lowercase words:
 ```
-breakfast -> protein "with" **breakfast** "on the side" ;
+breakfast -> protein "with" breakfast "on the side" ;
 breakfast -> protein ;
 breakfast -> bread ;
 
@@ -57,16 +57,20 @@ A parser has two jobs:
 The most important aspect of a parser is usability because at the end of the day, the user is the one who will be dealing with it the most. If the parser takes a long time to consume all the source files or if it doesn't notify the user of their mistakes, then it is not very usable. This is why the parser reports as many separate errors as it can while ignoring cascaded errors (meaning that it ignores the errors that are a side effect of previous errors).
 
 ## Interpreter
-Each kind of expression in Lox behaves differently at runtime, which means that the interpreter needs to select a different chunk of code to handle each expression type. Since the tree classes are used by both the parser and the interpreter, it would be a mess to associate all their behavior using methods on the classes themselves. In addition, doing name resolution on all those classes every time we need them or adding instance methods for _all_ the operations we need to perform over different domains would be really slow and inefficient; and it would violate separation of concerns. Instead, the best way to model syntax tree nodes is by using the Visitor pattern, which combines functional and object-oriented programming. With this design choice, we can define all of the behavior for a new operation on a set of types (in this case multiple different classes) in one place, without having to touch the types themselves.
+Each kind of expression in Lox behaves differently at runtime, which means that the interpreter needs to select a different chunk of code to handle each expression type. Since the tree classes are used by both the parser and the interpreter, it would be a mess to associate all their behavior using methods on the classes themselves. In addition, doing name resolution on all those classes every time we need them or adding instance methods for _all_ the operations we need to perform over different domains would be really slow and inefficient; and it would violate separation of concerns. 
+
+Instead, the best way to model syntax tree nodes is by using the Visitor pattern, which combines functional and object-oriented programming. With this design choice, we can define all of the behavior for a new operation on a set of types (in this case multiple different classes) in one place, without having to touch the types themselves. So we define a separate interface, and each operation that can be performed on expressions is a new class that implements that interface. To perform an operation on an expression, we call its `accept()` method and pass in the visitor for the operation we want to execute. That way we can use that method for as many visitors as we want without ever having to touch the expression classes again.
 
 ## Error Handling
 Since it is up to the program to notify the user of anything that could have gone wrong, the program has an error function that reports to the user that there is some syntax error on a given line.
 
 For lexical errors, if the scanner finds a character that Lox doesn't use, the erronous character gets discarded and the scanner keeps going through the characters in the source code. At the end, the program reports the all the errors to the user at one time. This is done to avoid having an error, having the program report it to the user so that it can be fixed, and then going through the same tedious process for the next error.
 
-And to prevent the program from crashing when it detects an error in non-critical operations, the program has a flag that is activated whenver it encounters an error. That way it can still perform non-critical operations without executing any code that could end the program abruptly.
+And to prevent the program from crashing when it detects an error in non-critical operations, the program has a flag that is activated whenever it encounters an error. That way it can still perform non-critical operations without executing any code that could end the program abruptly.
 
-When an error occurs, the parser discards tokens until it gets to the next statement. And then it will parse the rest of the file starting at that location. For runtime errors however, it catches the exception thrown by the language it is implemented on (java) and notifies the user of the error that occurred.
+When an error occurs, the parser discards tokens until it gets to the next statement. And then it will parse the rest of the file starting at that location. This process of getting its state and the sequence of following tokens aligned such that the next token does match the rule being parsed, is called synchronization. The parser fixes its parsing state by jumping out of any nested production rules until it gets back to that rule. Then it synchronizes the token stream by discarding tokens until it reaches an expected one based on the rule. For runtime errors however, it catches the exception thrown by the language it is implemented on (java) and notifies the user of the error that occurred.
+
+Having a ParseError class gives us the opportunity to unwind the parser if there is an unexpected error. In fact, the `error()` method _returns_ the error as opposed to throwing it because that way, the calling method inside the parser decides whether to unwind or not. Some parse errors occur in non-critical places where the parser doesn't need to synchronize. In those places, the program simply reports the error and keeps parsing.
 
 -----------------------------------------
 

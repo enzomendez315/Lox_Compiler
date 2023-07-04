@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.lang.model.util.ElementScanner6;
-
 /*
  * This class is used for parsing tokens once they have been scanned.
  * Each method for parsing a grammar rule produces a syntax tree for 
