@@ -69,6 +69,10 @@ Like grouping expressions, unary expressions have a single subexpression that ne
 
 Unlike unary expressions, binary expressions have two operands to evaluate using the appropriate operator.
 
+An expression statement can be defined as an expression that has side effects, such as calling a function or a method, or declaring variables. For example, a print statement evaluates an expression and displays the result to the user. But unlike expressions, statements produce no values. So the interpreter evaluates the inner expression and discards the value before returning `null`.
+
+In Lox, an environment stores the bindings that associate variables to values. It is like a map where the keys are variable names and the values are the variable's values themselves. There are different levels of environments, such that the program remembers the state of global variables, defined functions, and local variables. It also evaluates the precedence for each one using scopes and uses the right environment at runtime. Multiple scopes enable the same name to refer to different things in different contexts.
+
 ## Error Handling
 Since it is up to the program to notify the user of anything that could have gone wrong, the program has an error function that reports to the user that there is some syntax error on a given line.
 
