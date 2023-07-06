@@ -8,6 +8,25 @@ In Lox, values are created by literals, computed by expressions, and stored in v
 
 All numbers in Lox are floating point at runtime, but both integer and decimal literals are supported. Lox doesn't allow leading or trailing decimal point, which means that `.1234` and `1234.` are not valid.
 
+### Keywords
+The following identifiers are used as reserved words, or Lox _keywords_, and cannot be used as ordinary identifiers.
+```
+and         fun         or          this
+class       for         print       true
+else        if          return      var
+false       nil         super       while
+```
+
+### Functions
+Functions are declared with the `fun` keyword followed by the name of the function and a set of parentheses containing the arguments (if any). Lox functions cannot accept more than 255 arguments.
+
+```
+fun helloWorld()
+{
+    print "Hello World!";
+}
+```
+
 # Implementation
 ## Scanner
 The first step in any interpreter (or compiler) is scanning. A scanner takes in raw source code as a stream of characters and groups them into a series of chunks called tokens. Tokens are recognized characters in programming languages like `(` or `;`, numbers, string literals, and identifiers. Tokens make up the language's grammar and they are what the scanner will feed into the parser.
@@ -72,6 +91,17 @@ Unlike unary expressions, binary expressions have two operands to evaluate using
 An expression statement can be defined as an expression that has side effects, such as calling a function or a method, or declaring variables. For example, a print statement evaluates an expression and displays the result to the user. But unlike expressions, statements produce no values. So the interpreter evaluates the inner expression and discards the value before returning `null`.
 
 In Lox, an environment stores the bindings that associate variables to values. It is like a map where the keys are variable names and the values are the variable's values themselves. There are different levels of environments, such that the program remembers the state of global variables, defined functions, and local variables. It also evaluates the precedence for each one using scopes and uses the right environment at runtime. Multiple scopes enable the same name to refer to different things in different contexts.
+
+Once variable declaration, scopes, and logical operators were implemented, the program was able to execute while and for loops. Both loops require the same conditions in order to work:
+1. The initializer: Executed exactly once, before anything else. It could be an expression or a variable declaration.
+2. The condition: The expression that controls when to exit the loop. It is evaluated at the beginning of each iteration, including the first.
+3. The increment: An arbitrary expression that does some work at the end of each loop iteration. It almost always increments a variable.
+4. The body: The work that needs to be executed with each iteration.
+
+Implementing functions took longer than any of the features we implemented before, because functions require the implementation of: 
+- Variable declaration: To bind the name of the function to the actual block that executes it.
+- Scopes: To keep track of what variables can and cannot be used, as well as the arguments passed by the function.
+- Unary/binary expressions and conditional operators: To execute the work inside of the function.
 
 ## Error Handling
 Since it is up to the program to notify the user of anything that could have gone wrong, the program has an error function that reports to the user that there is some syntax error on a given line.
