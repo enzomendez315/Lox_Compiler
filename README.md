@@ -4,7 +4,7 @@ This program is an interpreter for a custom scripting language called Lox. Lox i
 For this project, I used a book called Crafting Interpreters by Robert Nystrom, where an interpreter is built from the ground up.[^2] It is ideal to get a better understanding of how high-level languages are implemented, and what goes through the creation of an interpreter using popular programming languages like Java or C++. This is a project to document what I learned.
 
 # Lox Documentation
-This reference manual describes the Lox programming language.
+This reference manual describes the Lox programming language implemented in Java.
 
 In Lox, values are created by literals, computed by expressions, and stored in variables. But the user only sees Lox objects (that are implemented in the undrelying language the interpreter is written in, aka Java).
 
@@ -20,8 +20,56 @@ false       nil         super       while
 ### Literals
 Literals are notations for constant values of some built-in types. A literal can be a user-defined identifier, a string, or a number.
 
+#### String Literals
+These are literals for a string value, and it is defined by putting quotation marks around the literal.
+```
+text = "Example text";
+```
+
 #### Numeric Literals
 All numbers in Lox are floating point at runtime, but both integer and decimal literals are supported. Lox doesn't allow leading or trailing decimal point, which means that `.1234` and `1234.` are not valid.
+
+Note that numeric literals do not include a sign; a phrase like `-1` is an expression formed by the unary operator `-` and the literal `1`.
+
+#### Identifiers
+Users can define and use their own identifiers using the `var` keyword. The location in which these identifiers are declared will affect the scope of where they can and cannot be used. Global identifiers are defined inside of a class, and can be used anywhere in the class. Local identifiers are defined inside of a function or method, and can only be used in that function or method.
+```
+class myFirstClass()
+{
+    var globalIden = "I'm global";      // A global identifier.
+
+    ...
+}
+```
+```
+fun myFirstFun()
+{
+    var localIden = "I'm local";        // A local identifier.
+
+    ...
+}
+```
+
+### Operators
+The following tokens are operators in Lox.
+```
++           -           *           /
+<           >           ;           //
+<=          >=          ,           .
+!=          ==          =
+```
+
+### Delimeters
+The following tokens serve as delimiters in the grammar.
+```
+(           )
+{           }
+```
+
+### Objects
+Objects are Lox's abstraction for data. All data in Lox is represented by objects or by relations between objects.
+
+In Lox, values are created by literals, computed by expressions, and stored in variables. But the user only sees Lox objects (that are implemented in the undrelying language the interpreter is written in, aka Java).
 
 ### Functions
 Functions are declared with the `fun` keyword followed by the name of the function and a set of parentheses containing the arguments (if any). Lox functions cannot accept more than 255 arguments.
@@ -31,6 +79,21 @@ fun helloWorld()
     print "Hello World!";
 }
 ```
+
+### Classes
+Classes are declared with the `class` keyword followed by the name of the class and a set of parentheses.
+```
+class myFirstClass()
+{
+    ...
+}
+```
+
+#### Class Instances
+A class instance is created by calling a class object.
+
+#### Inheritance
+Class can extend other classes with the token `<` after the class name.
 
 # Implementation
 ## Scanner
@@ -120,6 +183,8 @@ When an error occurs, the parser discards tokens until it gets to the next state
 Having a ParseError class gives us the opportunity to unwind the parser if there is an unexpected error. In fact, the `error()` method _returns_ the error as opposed to throwing it because that way, the calling method inside the parser decides whether to unwind or not. Some parse errors occur in non-critical places where the parser doesn't need to synchronize. In those places, the program simply reports the error and keeps parsing.
 
 It is critical to detect and address runtime errors appropriately. If these errors are not handled correctly, the program will throw a Java exception that will unwind the whole stack before exiting the application and printing the Java stack trace on the screen. But the fact that Lox is implemented in Java should be a detail hidden from the user, which is why dealing with runtime errors is important. The program uses its own class to extend the functionality of Java's RuntimeException class in order to detect and report errors to the user.
+
+Call type errors serve to detect and notify the user that the function they tried to call is not callable. An example of this are strings that are used as functions like `"not a function"();`. The program will identify that the object is not an instance of `LoxCallable` and will catch the Java exception. The interpreter will then throw a Lox exception and report it to the user.
 
 -----------------------------------------
 
