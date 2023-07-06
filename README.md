@@ -170,6 +170,9 @@ Implementing functions took longer than any of the features we implemented befor
 - Variable declaration: To bind the name of the function to the actual block that executes it.
 - Scopes: To keep track of what variables can and cannot be used, as well as the arguments passed by the function.
 - Unary/binary expressions and conditional operators: To execute the work inside of the function.
+- Return expression: To emit the result and pass it back to the user, or simply to jump back to the rest of the code if there is no return value.
+
+A `return` statement is useful for when a function does not have a return value, but we want to exit it early. When the statement is executed, the program uses a custom exception to unwind the interpreter past the `visit` methods of all of the containing statements, back to the code that began executing the body. The custom exception class extends Java's `RuntimeException` and since we only need it to unwind the interpreter (rather than to throw an actual exception), then we use a try-catch block in the `executeBlock()` method. That way the program can catch the return exception and pull out the value from the return statement. If the program never catches one of these exceptions, then it means the function reached the end of the body without hitting a `return` statement, so it returns `nil`.
 
 ## Error Handling
 Since it is up to the program to notify the user of anything that could have gone wrong, the program has an error function that reports to the user that there is some syntax error on a given line.
