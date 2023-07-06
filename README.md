@@ -4,9 +4,9 @@ This program is an interpreter for a custom scripting language called Lox. Lox i
 For this project, I used a book called Crafting Interpreters by Robert Nystrom, where an interpreter is built from the ground up.[^2] It is ideal to get a better understanding of how high-level languages are implemented, and what goes through the creation of an interpreter using popular programming languages like Java or C++. This is a project to document what I learned.
 
 # Lox Documentation
-In Lox, values are created by literals, computed by expressions, and stored in variables. But the user only sees Lox objects (that are implemented in the undrelying language the interpreter is written in, aka Java).
+This reference manual describes the Lox programming language.
 
-All numbers in Lox are floating point at runtime, but both integer and decimal literals are supported. Lox doesn't allow leading or trailing decimal point, which means that `.1234` and `1234.` are not valid.
+In Lox, values are created by literals, computed by expressions, and stored in variables. But the user only sees Lox objects (that are implemented in the undrelying language the interpreter is written in, aka Java).
 
 ### Keywords
 The following identifiers are used as reserved words, or Lox _keywords_, and cannot be used as ordinary identifiers.
@@ -17,9 +17,14 @@ else        if          return      var
 false       nil         super       while
 ```
 
+### Literals
+Literals are notations for constant values of some built-in types. A literal can be a user-defined identifier, a string, or a number.
+
+#### Numeric Literals
+All numbers in Lox are floating point at runtime, but both integer and decimal literals are supported. Lox doesn't allow leading or trailing decimal point, which means that `.1234` and `1234.` are not valid.
+
 ### Functions
 Functions are declared with the `fun` keyword followed by the name of the function and a set of parentheses containing the arguments (if any). Lox functions cannot accept more than 255 arguments.
-
 ```
 fun helloWorld()
 {
