@@ -34,7 +34,7 @@ Note that numeric literals do not include a sign; a phrase like `-1` is an expre
 #### Identifiers
 Users can define and use their own identifiers using the `var` keyword. The location in which these identifiers are declared will affect the scope of where they can and cannot be used. Global identifiers are defined inside of a class, and can be used anywhere in the class. Local identifiers are defined inside of a function or method, and can only be used in that function or method.
 ```
-class myFirstClass()
+class myFirstClass
 {
     var globalIden = "I'm global";      // A global identifier.
 
@@ -81,19 +81,63 @@ fun helloWorld()
 ```
 
 ### Classes
-Classes are declared with the `class` keyword followed by the name of the class and a set of parentheses.
+Classes are declared with the `class` keyword followed by the name of the class and a curly-braced body.
 ```
-class myFirstClass()
+class myFirstClass
 {
     ...
 }
 ```
 
 #### Class Instances
-A class instance is created by calling a class object.
+A class instance is created by calling a class object. New class instances are declared with the class name followed by a set of parenthesis.
+```
+class Student{}
+var student = Student();
+```
+
+#### Constructor/Initializer
+When a new class instance is created, the object is initialized with its `init()` method.
+```
+class Student
+{
+    init()
+    {
+        ...
+    }
+}
+```
+Returning a value from an initializer is not allowed, but using an empty `return` is permitted. If the initializer encounters an early return statement, it returns `this` object.
+
+#### This
+The keyword `this` is used to refer an object to itself to access its fields or methods.
+```
+class Student
+{
+    var age;
+
+    init(age)
+    {
+        this.age = age;
+    }
+}
+```
 
 #### Inheritance
 Class can extend other classes with the token `<` after the class name.
+
+#### Methods
+Unlike function declarations, methods don't have a leading `fun` keyword. Each method is a name, parameter list and body.
+
+```
+class Person
+{
+    drive()
+    {
+        ...
+    }
+}
+```
 
 # Implementation
 ## Scanner
@@ -173,6 +217,12 @@ Implementing functions took longer than any of the features we implemented befor
 - Return expression: To emit the result and pass it back to the user, or simply to jump back to the rest of the code if there is no return value.
 
 A `return` statement is useful for when a function does not have a return value, but we want to exit it early. When the statement is executed, the program uses a custom exception to unwind the interpreter past the `visit` methods of all of the containing statements, back to the code that began executing the body. The custom exception class extends Java's `RuntimeException` and since we only need it to unwind the interpreter (rather than to throw an actual exception), then we use a try-catch block in the `executeBlock()` method. That way the program can catch the return exception and pull out the value from the return statement. If the program never catches one of these exceptions, then it means the function reached the end of the body without hitting a `return` statement, so it returns `nil`.
+
+Before the Resolver class was implemented, the interpreter would resolve a variable each and every time the variable expression was evaluated. This means that if the variable was inside a loop that ran a thousand times, the variable was resolved a thousand times. A better approach is to resolve each variable once. So the Resolver class inspects the program, finds every variable mentioned, and figures out which declaration each refers to. 
+
+While the parser tells only if a program is grammatically correct, the resolver figures out what the different pieces of the program actually mean (aka resolve variable bindings). The greatest advantage about having a resolver is that there is no control flow. Loops are visited only once and both branches are visited in `if` statements.
+
+Each time the resolver visits a variable, it tells the interpreter how many scopes there are between the current scope and the scope where the variable is defined so that the interpreter can find the variable's value.
 
 ## Error Handling
 Since it is up to the program to notify the user of anything that could have gone wrong, the program has an error function that reports to the user that there is some syntax error on a given line.
