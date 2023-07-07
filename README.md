@@ -3,6 +3,8 @@ This program is an interpreter for a custom scripting language called Lox. Lox i
 
 For this project, I used a book called Crafting Interpreters by Robert Nystrom, where an interpreter is built from the ground up.[^2] It is ideal to get a better understanding of how high-level languages are implemented, and what goes through the creation of an interpreter using popular programming languages like Java or C++. This is a project to document what I learned.
 
+The main difference between a compiler and an interpreter is that a compiler only translates source code to some other form. It does not execute it. The user has to take the resulting output and run it themselves. On the other hand, an interpreter takes in source code and executes it immediately. In that regard, we can think of the compiler as a pipeline where each stage's job is to organize the data representing the user's code in a way that makes the next stage simpler to implement.
+
 # Lox Documentation
 This reference manual describes the Lox programming language implemented in Java.
 
@@ -124,7 +126,19 @@ class Student
 ```
 
 #### Inheritance
-Class can extend other classes with the token `<` after the class name.
+A class can extend another class with the token `<` after the class name, followed by the name of the parent class.
+```
+class Person
+{
+    ...
+}
+
+class Student < Person
+{
+    ...
+}
+```
+When inheriting from a class, the subclass is a subtype of the superclass (or the child is a subtype of the parent). All the methods and data from the parent class can also be found in the child.
 
 #### Methods
 Unlike function declarations, methods don't have a leading `fun` keyword. Each method is a name, parameter list and body.
@@ -135,6 +149,27 @@ class Person
     drive()
     {
         ...
+    }
+}
+```
+
+#### Super
+If a method with the same name exists in both the subclass and the superclass, the subclass takes precedence (or overrides) the superclass method. The `super` keyword is used if the user wants to refine the superclass's behavior, rather than completely replacing it. It tells the program to look for this method in the superclass and ignore any overrides.
+```
+class Person
+{
+    read()
+    {
+        ...     // Implementation of how an average person reads.
+    }
+}
+
+class Student < Person
+{
+    read()
+    {
+        super.read();   // Implementation of how an average person reads,
+        ...             // plus how a student reads.
     }
 }
 ```
@@ -238,20 +273,6 @@ Having a ParseError class gives us the opportunity to unwind the parser if there
 It is critical to detect and address runtime errors appropriately. If these errors are not handled correctly, the program will throw a Java exception that will unwind the whole stack before exiting the application and printing the Java stack trace on the screen. But the fact that Lox is implemented in Java should be a detail hidden from the user, which is why dealing with runtime errors is important. The program uses its own class to extend the functionality of Java's RuntimeException class in order to detect and report errors to the user.
 
 Call type errors serve to detect and notify the user that the function they tried to call is not callable. An example of this are strings that are used as functions like `"not a function"();`. The program will identify that the object is not an instance of `LoxCallable` and will catch the Java exception. The interpreter will then throw a Lox exception and report it to the user.
-
------------------------------------------
-
-We can think of the compiler as a pipeline where each stage's job is to organize the data representing the user's code in a way that makes
-the next stage simpler to implement.
-
-A compiler translates a source language to some other language (usually lower-level). Although transpiling a low level language to a
-higher level constitutes as compiling too. But the compiler only translates source code to some other form. It does not execute it. The user
-has to take the resulting output and run it themselves. On the other hand, an interpreter takes in source code and executes it immediately.
-
-The tree-walk interpreter evaluates nested expressions using recursive method calls.
-
-
-
 
 
 [^1]: Dynamically-typed means that the interpreter assigns variables a type at runtime based on the variable's value. This is different from a statically-typed language like Java or C++, where variable types are known at compile time.
