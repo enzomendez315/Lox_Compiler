@@ -1,9 +1,9 @@
 # Building A Tree-Walk Interpreter
 This program is an interpreter for a custom scripting language called Lox. Lox is a high-level, dynamically-typed[^1] language like Python or PHP. Since Lox is a scripting language, it executes directly from source.
 
-For this project, I used a book called Crafting Interpreters by Robert Nystrom, where an interpreter is built from the ground up.[^2] It is ideal to get a better understanding of how high-level languages are implemented, and what goes through the creation of an interpreter using popular programming languages like Java or C++. This is a project to document what I learned.
-
 The main difference between a compiler and an interpreter is that a compiler only translates source code to some other form. It does not execute it. The user has to take the resulting output and run it themselves. On the other hand, an interpreter takes in source code and executes it immediately. In that regard, we can think of the compiler as a pipeline where each stage's job is to organize the data representing the user's code in a way that makes the next stage simpler to implement.
+
+For this project, I used a book called Crafting Interpreters by Robert Nystrom, where an interpreter is built from the ground up.[^2] It is ideal to get a better understanding of how high-level languages are implemented, and what goes through the creation of an interpreter using popular programming languages like Java or C++. This is a project to document what I learned.
 
 # Lox Documentation
 This reference manual describes the Lox programming language implemented in Java.
