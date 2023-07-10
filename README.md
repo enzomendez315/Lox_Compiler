@@ -281,7 +281,7 @@ The speed of the program is also an issue, since even simple expressions like `1
 
 Another disadvantage is that the interpreter stores data across the heap as a loosely connected web of objects. And in order for the CPU to use the cache so that data can be loaded more quickly, there have to be little bundles of bytes that are adjacent to each other. But this is difficult to do given this particular implementation of the interpreter. In the current implementation, every step the tree-walker takes to follow a reference to a child node may step outside the bounds of the cache, and force the CPU to stall until a new lump of data can be stored from RAM. In addition, the overhead of the tree nodes (the pointers and the headers) tend to push objects away from each other and out of the cache.
 
-So while this implementation of an interpreter was more beginner-friendly and straightforward, the solution would be to create a new implementation that compiles directly to the native instruction set the chip supports. Here's the implementation for an [interpreter](https://github.com/enzomendez315/Lox_Interpreter_Java) written in C++.
+So while this implementation of an interpreter was more beginner-friendly and straightforward, the solution would be to create a new implementation that compiles directly to the native instruction set the chip supports. Here's the implementation for an [interpreter](https://github.com/enzomendez315/Lox_Interpreter_Cpp) written in C++ using bytecode.
 
 
 [^1]: Dynamically-typed means that the interpreter assigns variables a type at runtime based on the variable's value. This is different from a statically-typed language like Java or C++, where variable types are known at compile time.
